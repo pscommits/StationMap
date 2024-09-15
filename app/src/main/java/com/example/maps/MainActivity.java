@@ -3,6 +3,9 @@ package com.example.maps;
 import android.os.Bundle;
 import android.util.Log;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -19,7 +22,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.MapStyleOptions;
@@ -50,9 +55,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
-        LatLng location = new LatLng(22.5839, 88.3434);
-        googleMap.addMarker(new MarkerOptions().position(location).title("Howrah Station"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 16));
+        //LatLng location = new LatLng(22.5839, 88.3434);
+        //googleMap.addMarker(new MarkerOptions().position(location).title("Howrah Station"));
+        //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 16));
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng(22.583081238080016, 88.342410382103)) // Set the center of the map
+                .zoom(18) // Zoom level
+                .tilt(45) // Tilt angle
+                .build();
+
+
+        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        googleMap.setIndoorEnabled(true);
+
+        // Set minimum and maximum zoom levels
+        googleMap.setMinZoomPreference(17.0f); // Minimum zoom level
+        googleMap.setMaxZoomPreference(19.0f); // Maximum zoom level
+
 
         // Platform Data
         List<PlatformData> platformDataList = new ArrayList<>();
@@ -70,11 +90,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         platformDataList.add(new PlatformData(new LatLng(22.58221598758322, 88.33969540334604), "Platform 12"));
         platformDataList.add(new PlatformData(new LatLng(22.583400867969928, 88.33834252669553), "Platform 13"));
 
+        // Resize the custom icon
+        Bitmap bitmapplat = BitmapFactory.decodeResource(getResources(), R.drawable.platform);
+        Bitmap smallplatformMarker = Bitmap.createScaledBitmap(bitmapplat, 100, 100, false);  // Resize to 100x100 pixels
+        BitmapDescriptor platformIcon = BitmapDescriptorFactory.fromBitmap(smallplatformMarker);
+
         for (PlatformData platformData : platformDataList) {
             googleMap.addMarker(new MarkerOptions()
                     .position(platformData.getLatLng())
                     .title(platformData.getTitle())
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                    .icon(platformIcon));
         }// Custom color
 
         // Add waiting location markers using List
@@ -86,14 +111,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         waitingLocationDataList.add(new WaitingLocationData(new LatLng(22.583051789397285, 88.3430381327664), "Waiting Location 5"));
         waitingLocationDataList.add(new WaitingLocationData(new LatLng(22.58168178169191, 88.34191035478679), "Waiting Location 6"));
         waitingLocationDataList.add(new WaitingLocationData(new LatLng(22.581281814704674, 88.34214102476417), "Waiting Location 7"));
-        waitingLocationDataList.add(new WaitingLocationData(new LatLng(22.581321439968246, 88.3420880511378), "Waiting Location 8"));
         waitingLocationDataList.add(new WaitingLocationData(new LatLng(22.58076730437765, 88.34202501922066), "Waiting Location 9"));
+
+        // Resize the custom icon
+        Bitmap bitmapwaiting = BitmapFactory.decodeResource(getResources(), R.drawable.waiting);
+        Bitmap smallwaitingMarker = Bitmap.createScaledBitmap(bitmapwaiting, 100, 100, false);  // Resize to 100x100 pixels
+        BitmapDescriptor waitingIcon = BitmapDescriptorFactory.fromBitmap(smallwaitingMarker);
 
         // Add markers for each waiting location
         for (WaitingLocationData waitingLocationData : waitingLocationDataList) {
             googleMap.addMarker(new MarkerOptions()
                     .position(waitingLocationData.getLatLng())
-                    .title(waitingLocationData.getTitle()));
+                    .title(waitingLocationData.getTitle())
+                    .icon(waitingIcon));
         }
 
         List<FoodLocationData> foodLocationDataList = new ArrayList<>();
@@ -108,12 +138,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         foodLocationDataList.add(new FoodLocationData(new LatLng(22.58146427749408, 88.3421259086699), "Food Location 9"));
         foodLocationDataList.add(new FoodLocationData(new LatLng(22.582441085648448, 88.341597580453), "Food Location 10"));
 
+        // Resize the custom icon
+        Bitmap bitmapfood = BitmapFactory.decodeResource(getResources(), R.drawable.food);
+        Bitmap smallfoodMarker = Bitmap.createScaledBitmap(bitmapfood, 100, 100, false);  // Resize to 100x100 pixels
+        BitmapDescriptor foodIcon = BitmapDescriptorFactory.fromBitmap(smallfoodMarker);
+
         // Add markers for each food location with custom color (Green)
         for (FoodLocationData foodLocationData : foodLocationDataList) {
             googleMap.addMarker(new MarkerOptions()
                     .position(foodLocationData.getLatLng())
                     .title(foodLocationData.getTitle())
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))); // Set marker color to green
+                    //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))); // Set marker color to green
+                    .icon(foodIcon));  // Use resized custom icon
         }
 
         List<RestroomLocationData> restroomLocationDataList = new ArrayList<>();
@@ -122,12 +158,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         restroomLocationDataList.add(new RestroomLocationData(new LatLng(22.582000228573452, 88.34164149236315), "Restroom 3"));
         restroomLocationDataList.add(new RestroomLocationData(new LatLng(22.583081238080016, 88.342410382103), "Restroom 4"));
 
+        // Resize the custom icon
+        Bitmap bitmaprestroom = BitmapFactory.decodeResource(getResources(), R.drawable.restroom);
+        Bitmap smallrestroomMarker = Bitmap.createScaledBitmap(bitmaprestroom, 100, 100, false);  // Resize to 100x100 pixels
+        BitmapDescriptor restroomIcon = BitmapDescriptorFactory.fromBitmap(smallrestroomMarker);
+
         // Add markers for each restroom location with custom color (Orange)
         for (RestroomLocationData restroomLocationData : restroomLocationDataList) {
             googleMap.addMarker(new MarkerOptions()
                     .position(restroomLocationData.getLatLng())
                     .title(restroomLocationData.getTitle())
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));  // Set marker color to orange
+                    .icon(restroomIcon));  // Set marker color to orange
         }
 
         List<StoreLocationData> storeLocationDataList = new ArrayList<>();
@@ -138,12 +179,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         storeLocationDataList.add(new StoreLocationData(new LatLng(22.584458834083023, 88.34297180033505), "Store 5"));
         storeLocationDataList.add(new StoreLocationData(new LatLng(22.5813676441315, 88.34215995368625), "Store 6"));
 
+        // Resize the custom icon
+        Bitmap bitmapstores = BitmapFactory.decodeResource(getResources(), R.drawable.stores);
+        Bitmap smallstoresMarker = Bitmap.createScaledBitmap(bitmapstores, 100, 100, false);  // Resize to 100x100 pixels
+        BitmapDescriptor storesIcon = BitmapDescriptorFactory.fromBitmap(smallstoresMarker);
+
         // Add markers for each store location with custom color (Yellow)
         for (StoreLocationData storeLocationData : storeLocationDataList) {
             googleMap.addMarker(new MarkerOptions()
                     .position(storeLocationData.getLatLng())
                     .title(storeLocationData.getTitle())
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));  // Set marker color to yellow
+                    .icon(storesIcon));  // Set marker color to yellow
         }
 
         List<OfficeLocationData> officeLocationDataList = new ArrayList<>();
@@ -156,12 +202,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         officeLocationDataList.add(new OfficeLocationData(new LatLng(22.58223143966718, 88.34207819327176), "Office 7"));
         officeLocationDataList.add(new OfficeLocationData(new LatLng(22.582303495513603, 88.34256047539755), "Office 8"));
 
+        // Resize the custom icon
+        Bitmap bitmapoffice = BitmapFactory.decodeResource(getResources(), R.drawable.office);
+        Bitmap smallofficeMarker = Bitmap.createScaledBitmap(bitmapoffice, 100, 100, false);  // Resize to 100x100 pixels
+        BitmapDescriptor officeIcon = BitmapDescriptorFactory.fromBitmap(smallofficeMarker);
+
         // Add markers for each office location with custom color (Purple)
         for (OfficeLocationData officeLocationData : officeLocationDataList) {
             googleMap.addMarker(new MarkerOptions()
                     .position(officeLocationData.getLatLng())
                     .title(officeLocationData.getTitle())
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));  // Set marker color to purple
+                    .icon(officeIcon));  // Set marker color to purple
         }
 
         try {
